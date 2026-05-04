@@ -523,15 +523,26 @@ function renderPhase1Debrief() {
   })[0];
   const apparent = color(apparentBest.colorId);
 
+  const weeksSpent = state.phase1.tests.length;
+  let verdictHTML;
+  if (correct && weeksSpent > 6) {
+    verdictHTML = `<span class="verdict-good">Right answer — but at a price.</span> With ${weeksSpent} weeks of data, the noise has averaged out enough for the true ranking to surface. Sequential testing <em>does</em> work eventually. The catch: you just spent ${weeksSpent} weeks of traffic — and most of those weeks ran a sub-optimal color sitewide — to learn what a single A/B week (Phase 2) could have told you.`;
+  } else if (correct) {
+    verdictHTML = `<span class="verdict-good">Lucky pick — the noise happened to favor the right answer.</span> With only ${weeksSpent} week${weeksSpent === 1 ? '' : 's'} of data, this could just as easily have landed on a different color.`;
+  } else {
+    verdictHTML = `<span class="verdict-bad">Wrong call.</span> Don't feel bad: the dashboard misled you.`;
+  }
+
   const wrapper = el('div', { class: 'panel' });
-  wrapper.innerHTML = `
-    <h2>Phase 1 debrief</h2>
-    <p>You shipped <strong style="color:${chose.hex}">${chose.name}</strong>. The <em>actual</em> highest-converting color is <strong style="color:${truth.hex}">${truth.name}</strong> (true rate among qualified readers: ${pct(truth.rate)}).</p>
-    <p>${correct
-      ? '<span class="verdict-good">Lucky pick — the noise happened to favor the right answer.</span>'
-      : '<span class="verdict-bad">Wrong call.</span> Don\'t feel bad: the dashboard misled you.'}</p>
-  `;
+  wrapper.innerHTML = `<h2>Phase 1 debrief</h2>`;
   wrapper.appendChild(buildPhase1Table(true));
+
+  const narrative = document.createElement('div');
+  narrative.innerHTML = `
+    <p>You shipped <strong style="color:${chose.hex}">${chose.name}</strong>. The <em>actual</em> highest-converting color is <strong style="color:${truth.hex}">${truth.name}</strong> (true rate among qualified readers: ${pct(truth.rate)}).</p>
+    <p>${verdictHTML}</p>
+  `;
+  wrapper.appendChild(narrative);
 
   const apparentReported = apparentBest.conversions / (apparentBest.convertible + apparentBest.nonConvertible);
   const lesson = document.createElement('div');
@@ -887,14 +898,17 @@ function renderPhase3Debrief() {
   const correct = chose.id === truth.id;
 
   const wrapper = el('div', { class: 'panel' });
-  wrapper.innerHTML = `
-    <h2>Phase 3 debrief</h2>
+  wrapper.innerHTML = `<h2>Phase 3 debrief</h2>`;
+  wrapper.appendChild(buildAbnGrid(cumulativePhase3(), true));
+
+  const narrative = document.createElement('div');
+  narrative.innerHTML = `
     <p>You shipped <strong style="color:${chose.hex}">${chose.name}</strong>. The actual best color is <strong style="color:${truth.hex}">${truth.name}</strong> (${pct(truth.rate)} among qualified readers).</p>
     <p>${correct
       ? '<span class="verdict-good">Correct.</span> Splitting all four arms in one experiment found the winner directly — no tournaments required.'
       : '<span class="verdict-bad">Not quite.</span> With small per-arm samples in just a few weeks, individual arms can stay noisy. Running more weeks would converge.'}</p>
   `;
-  wrapper.appendChild(buildAbnGrid(cumulativePhase3(), true));
+  wrapper.appendChild(narrative);
 
   const lesson = document.createElement('div');
   lesson.className = 'lesson';
