@@ -1,0 +1,989 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rainbow News — The Experimentation Game</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-2: #273449;
+    --border: #334155;
+    --ink: #e2e8f0;
+    --ink-dim: #94a3b8;
+    --ink-faint: #64748b;
+    --accent: #38bdf8;
+    --good: #10b981;
+    --bad: #ef4444;
+    --warn: #f59e0b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    background: var(--panel);
+  }
+  header h1 {
+    margin: 0 0 6px 0;
+    font-size: 18px;
+    letter-spacing: 0.02em;
+  }
+  header .sub { font-size: 13px; color: var(--ink-dim); }
+  .phases {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 12px;
+  }
+  .phases .pill {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--panel-2);
+    color: var(--ink-faint);
+    border: 1px solid var(--border);
+  }
+  .phases .pill.active { color: var(--ink); border-color: var(--accent); }
+  .phases .pill.done { color: var(--good); border-color: var(--good); }
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+  }
+  h2 { margin: 0 0 8px 0; font-size: 22px; }
+  h3 { margin: 24px 0 8px 0; font-size: 16px; color: var(--ink-dim); font-weight: 600; }
+  p { margin: 8px 0; }
+  .muted { color: var(--ink-dim); }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 14px 0;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  button {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.primary {
+    background: var(--accent);
+    color: #0f172a;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  button.primary:hover:not(:disabled) { filter: brightness(1.1); }
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .color-card {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: pointer;
+    background: var(--panel-2);
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .color-card:hover { border-color: var(--accent); }
+  .color-card.selected { border-color: var(--accent); background: rgba(56,189,248,0.08); }
+  .color-card.disabled { opacity: 0.4; cursor: not-allowed; }
+  .color-card .swatch {
+    height: 36px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .color-card .label { font-size: 14px; }
+  .preview {
+    background: #f8fafc;
+    color: #0f172a;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 12px 0;
+  }
+  .preview .brand {
+    font-weight: 700;
+    font-size: 14px;
+    color: #ec4899;
+    letter-spacing: 0.04em;
+  }
+  .preview .head {
+    font-size: 19px;
+    font-weight: 700;
+    margin: 6px 0 4px 0;
+    color: #0f172a;
+  }
+  .preview .body {
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 14px;
+  }
+  .cta {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  th { color: var(--ink-dim); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  td .swatch-inline {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .winner { color: var(--good); font-weight: 600; }
+  .reveal-row { background: rgba(16,185,129,0.06); }
+  .ab-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .ab-cell {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .ab-cell .swatch {
+    height: 28px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  .ab-cell .rate {
+    font-size: 24px;
+    font-weight: 700;
+  }
+  .abn-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .lesson {
+    background: rgba(56,189,248,0.07);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 16px 0;
+  }
+  .lesson h3 { color: var(--accent); margin-top: 0; }
+  .verdict-good {
+    color: var(--good);
+    font-weight: 600;
+  }
+  .verdict-bad {
+    color: var(--bad);
+    font-weight: 600;
+  }
+  .small { font-size: 12px; color: var(--ink-faint); }
+  .pad-top { margin-top: 18px; }
+  .center { text-align: center; }
+  hr.sep { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Rainbow News — The Experimentation Game</h1>
+  <div class="sub">You are the product manager. Find the highest-converting subscribe button.</div>
+  <div class="phases" id="phases"></div>
+</header>
+<main id="app"></main>
+
+<script>
+"use strict";
+
+// ===== Simulation parameters =====
+const COLORS = [
+  { id: 'red',    name: 'Red',    hex: '#ef4444' },
+  { id: 'blue',   name: 'Blue',   hex: '#3b82f6' },
+  { id: 'green',  name: 'Green',  hex: '#10b981' },
+  { id: 'purple', name: 'Purple', hex: '#a855f7' },
+];
+
+// Each phase has its own set of true conversion rates among qualified readers,
+// so each phase has a different correct answer. This lets the lesson
+// demonstrate that each method genuinely identifies the truth for its own scenario.
+const PHASE_RATES = {
+  1: { red: 0.07, blue: 0.12, green: 0.09, purple: 0.08 }, // winner: Blue
+  2: { red: 0.08, blue: 0.09, green: 0.07, purple: 0.13 }, // winner: Purple
+  3: { red: 0.07, blue: 0.08, green: 0.14, purple: 0.09 }, // winner: Green
+};
+
+const CONVERTIBLE_PER_WEEK = 1000;
+const TRAFFIC_CYCLE_WEEKS = 52;
+
+// Deterministic PRNG so the demo is reproducible week-over-week and run-over-run.
+function mulberry32(seed) {
+  let s = seed | 0;
+  return function() {
+    s = (s + 0x6D2B79F5) | 0;
+    let t = s;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Precompiled non-convertible traffic for 52 weeks, shared across all phases.
+// After week 52 the schedule loops, so demos never run out of data.
+const NC_TRAFFIC = (() => {
+  const rng = mulberry32(20260504);
+  const out = [];
+  for (let i = 0; i < TRAFFIC_CYCLE_WEEKS; i++) {
+    out.push(Math.floor(500 + rng() * 3500));
+  }
+  return out;
+})();
+function ncForWeek(week) {
+  return NC_TRAFFIC[(week - 1) % TRAFFIC_CYCLE_WEEKS];
+}
+
+function color(id) { return COLORS.find(c => c.id === id); }
+function trueRate(phase, colorId) {
+  return PHASE_RATES[phase][colorId];
+}
+function bestColorForPhase(phase) {
+  let best = null;
+  for (const c of COLORS) {
+    const r = trueRate(phase, c.id);
+    if (!best || r > best.rate) best = Object.assign({}, c, { rate: r });
+  }
+  return best;
+}
+
+// Deterministic conversion sampling. Same (phase, cycled-week, colorId) always
+// returns the same result, so weeks 53+ replay the same outcomes as weeks 1+.
+function deterministicSample(phase, week, colorId, n) {
+  const p = trueRate(phase, colorId);
+  const ci = COLORS.findIndex(c => c.id === colorId);
+  const cw = (week - 1) % TRAFFIC_CYCLE_WEEKS;
+  const seed = ((phase * (TRAFFIC_CYCLE_WEEKS + 1) + cw) * COLORS.length + ci) + 1;
+  const rng = mulberry32(seed);
+  let count = 0;
+  for (let i = 0; i < n; i++) if (rng() < p) count++;
+  return count;
+}
+function pct(x) { return (x * 100).toFixed(2) + '%'; }
+function num(x) { return x.toLocaleString(); }
+
+// ===== Game state =====
+const state = {
+  screen: 'intro',
+  phase1: { tests: [], decision: null }, // tests: [{week, colorId, convertible, nonConvertible, conversions}]
+  phase2: { tests: [], decision: null, currentSelection: [] }, // tests: [{week, a:{...}, b:{...}}]
+  phase3: { tests: [], decision: null }, // tests: cumulative weekly results, decision = {colorId, textId}
+};
+
+// ===== Rendering =====
+const app = document.getElementById('app');
+const phasesEl = document.getElementById('phases');
+
+function renderPhases() {
+  const phaseLabels = ['1. Sequential', '2. A/B Test', '3. A/B/n Test'];
+  const current =
+    state.screen.startsWith('phase1') ? 0 :
+    state.screen.startsWith('phase2') ? 1 :
+    state.screen.startsWith('phase3') ? 2 :
+    state.screen === 'summary' ? 3 : -1;
+  phasesEl.innerHTML = phaseLabels.map((label, i) => {
+    let cls = 'pill';
+    if (i < current) cls += ' done';
+    if (i === current) cls += ' active';
+    return `<span class="${cls}">${label}</span>`;
+  }).join('');
+}
+
+function render() {
+  renderPhases();
+  const fns = {
+    intro: renderIntro,
+    'phase1-run': renderPhase1Run,
+    'phase1-decide': renderPhase1Decide,
+    'phase1-debrief': renderPhase1Debrief,
+    'phase2-run': renderPhase2Run,
+    'phase2-decide': renderPhase2Decide,
+    'phase2-debrief': renderPhase2Debrief,
+    'phase3-run': renderPhase3Run,
+    'phase3-decide': renderPhase3Decide,
+    'phase3-debrief': renderPhase3Debrief,
+    summary: renderSummary,
+  };
+  app.innerHTML = '';
+  (fns[state.screen] || renderIntro)();
+}
+
+function el(tag, attrs = {}, children = []) {
+  const e = document.createElement(tag);
+  for (const k in attrs) {
+    if (k === 'class') e.className = attrs[k];
+    else if (k === 'html') e.innerHTML = attrs[k];
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]);
+    else e.setAttribute(k, attrs[k]);
+  }
+  for (const c of [].concat(children)) {
+    if (c == null) continue;
+    e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  }
+  app.appendChild(e);
+  return e;
+}
+
+function previewHTML(colorId) {
+  const c = color(colorId);
+  return `
+    <div class="preview">
+      <div class="brand">RAINBOW NEWS</div>
+      <div class="head">Markets close mixed as tech rally fizzles</div>
+      <div class="body">Investors weighed quarterly earnings against fresh signals from the Fed. Analysts split on whether the rotation is durable...</div>
+      <span class="cta" style="background:${c.hex}">Subscribe →</span>
+    </div>
+  `;
+}
+
+// ===== Screen: Intro =====
+function renderIntro() {
+  app.innerHTML = `
+    <div class="panel">
+      <h2>The brief</h2>
+      <p>You're the PM at <strong>Rainbow News</strong>. The growth team wants you to find the highest-converting color (and later, label) for the article-page <strong>subscribe button</strong>.</p>
+      <p class="muted">Each test runs for one week. Each week, ~1,000 visitors are <em>plausible subscribers</em> — the kind of reader who could convert. A variable amount of additional traffic (between roughly 500 and 4,000 visitors a week) just stops by to skim a headline. Your dashboard reports a single number: <strong>total conversion rate = subscriptions ÷ all visitors</strong>.</p>
+      <p>You'll run three separate campaigns. Each one is a fresh scenario with its own underlying audience preferences — the best color in Phase 1 isn't necessarily the best in Phase 2.</p>
+      <ol>
+        <li><strong>Phase 1:</strong> change one color at a time, one per week. Run as long as you like, then commit.</li>
+        <li><strong>Phase 2:</strong> A/B test two colors in the same week.</li>
+        <li><strong>Phase 3:</strong> A/B/n test — split traffic across all four colors at once.</li>
+      </ol>
+      ${previewHTML('blue')}
+      <div class="row" style="margin-top:12px">
+        <button class="primary" onclick="startPhase1()">Begin Phase 1 →</button>
+      </div>
+    </div>
+  `;
+}
+window.startPhase1 = () => { state.screen = 'phase1-run'; render(); };
+
+// ===== Phase 1: Sequential =====
+function renderPhase1Run() {
+  const week = state.phase1.tests.length + 1;
+  const counts = {};
+  for (const t of state.phase1.tests) counts[t.colorId] = (counts[t.colorId] || 0) + 1;
+
+  const wrapper = el('div', { class: 'panel' });
+  wrapper.innerHTML = `
+    <h2>Phase 1 — Sequential testing</h2>
+    <p class="muted">Each week, pick one button color to launch site-wide. Keep going as many weeks as you want — re-test colors if you'd like more data — then commit to a winner when you feel confident.</p>
+  `;
+
+  const week_h = document.createElement('h3');
+  week_h.textContent = `Week ${week} — choose a color to launch`;
+  wrapper.appendChild(week_h);
+
+  const grid = document.createElement('div');
+  grid.className = 'color-grid';
+  for (const c of COLORS) {
+    const n = counts[c.id] || 0;
+    const card = document.createElement('div');
+    card.className = 'color-card';
+    card.innerHTML = `
+      <div class="swatch" style="background:${c.hex}"></div>
+      <div class="label">${c.name}</div>
+      <div class="small" style="margin-top:4px">${n === 0 ? 'untested' : `tested ${n}×`}</div>
+    `;
+    card.onclick = () => runPhase1Week(c.id);
+    grid.appendChild(card);
+  }
+  wrapper.appendChild(grid);
+
+  if (state.phase1.tests.length > 0) {
+    const ctrls = document.createElement('div');
+    ctrls.className = 'row';
+    ctrls.style.marginTop = '12px';
+    const decide = document.createElement('button');
+    decide.className = 'primary';
+    decide.textContent = "I'm ready — pick a winner →";
+    decide.onclick = () => { state.screen = 'phase1-decide'; render(); };
+    ctrls.appendChild(decide);
+    wrapper.appendChild(ctrls);
+
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Weekly dashboard so far';
+    wrapper.appendChild(h3);
+    wrapper.appendChild(buildPhase1Table(false));
+    const note = document.createElement('p');
+    note.className = 'small';
+    note.textContent = 'Note how week-to-week traffic varies. The conversion rate divides by every visitor — including the ones who would never have subscribed regardless of color.';
+    wrapper.appendChild(note);
+  }
+}
+
+function buildPhase1Table(reveal) {
+  const t = document.createElement('table');
+  let head = `<thead><tr>
+    <th>Week</th><th>Color</th><th>Total visitors</th><th>Subscriptions</th><th>Reported rate</th>`;
+  if (reveal) head += `<th>True rate*</th>`;
+  head += `</tr></thead>`;
+  let body = '<tbody>';
+  for (const r of state.phase1.tests) {
+    const c = color(r.colorId);
+    const total = r.convertible + r.nonConvertible;
+    const reported = r.conversions / total;
+    const trueR = r.conversions / r.convertible;
+    body += `<tr${reveal ? ' class="reveal-row"' : ''}>
+      <td>${r.week}</td>
+      <td><span class="swatch-inline" style="background:${c.hex}"></span>${c.name}</td>
+      <td>${num(total)} <span class="small">(${num(r.convertible)} qualified + ${num(r.nonConvertible)} casual)</span></td>
+      <td>${r.conversions}</td>
+      <td>${pct(reported)}</td>
+      ${reveal ? `<td>${pct(trueR)}</td>` : ''}
+    </tr>`;
+  }
+  body += '</tbody>';
+  t.innerHTML = head + body;
+  return t;
+}
+
+window.runPhase1Week = (colorId) => {
+  const week = state.phase1.tests.length + 1;
+  const convertible = CONVERTIBLE_PER_WEEK;
+  const nonConvertible = ncForWeek(week);
+  const conversions = deterministicSample(1, week, colorId, convertible);
+  state.phase1.tests.push({ week, colorId, convertible, nonConvertible, conversions });
+  render();
+};
+
+function renderPhase1Decide() {
+  const wrapper = el('div', { class: 'panel' });
+  wrapper.innerHTML = `
+    <h2>Phase 1 — Decision time</h2>
+    <p>Based on the dashboard, which color should you ship as the permanent subscribe button?</p>
+  `;
+  wrapper.appendChild(buildPhase1Table(false));
+
+  const grid = document.createElement('div');
+  grid.className = 'color-grid';
+  grid.style.marginTop = '16px';
+  for (const c of COLORS) {
+    const card = document.createElement('div');
+    card.className = 'color-card';
+    card.innerHTML = `
+      <div class="swatch" style="background:${c.hex}"></div>
+      <div class="label">Ship ${c.name}</div>
+    `;
+    card.onclick = () => {
+      state.phase1.decision = c.id;
+      state.screen = 'phase1-debrief';
+      render();
+    };
+    grid.appendChild(card);
+  }
+  wrapper.appendChild(grid);
+}
+
+function renderPhase1Debrief() {
+  const truth = bestColorForPhase(1);
+  const chose = color(state.phase1.decision);
+  const correct = chose.id === truth.id;
+
+  // Find the color that *looked* best in the displayed numbers
+  const apparentBest = [...state.phase1.tests].sort((a, b) => {
+    const ra = a.conversions / (a.convertible + a.nonConvertible);
+    const rb = b.conversions / (b.convertible + b.nonConvertible);
+    return rb - ra;
+  })[0];
+  const apparent = color(apparentBest.colorId);
+
+  const wrapper = el('div', { class: 'panel' });
+  wrapper.innerHTML = `
+    <h2>Phase 1 debrief</h2>
+    <p>You shipped <strong style="color:${chose.hex}">${chose.name}</strong>. The <em>actual</em> highest-converting color is <strong style="color:${truth.hex}">${truth.name}</strong> (true rate among qualified readers: ${pct(truth.rate)}).</p>
+    <p>${correct
+      ? '<span class="verdict-good">Lucky pick — the noise happened to favor the right answer.</span>'
+      : '<span class="verdict-bad">Wrong call.</span> Don\'t feel bad: the dashboard misled you.'}</p>
+  `;
+  wrapper.appendChild(buildPhase1Table(true));
+
+  const apparentReported = apparentBest.conversions / (apparentBest.convertible + apparentBest.nonConvertible);
+  const lesson = document.createElement('div');
+  lesson.className = 'lesson';
+  lesson.innerHTML = `
+    <h3>Why the dashboard misled you</h3>
+    <p>The reported rate is <code>subscriptions ÷ <strong>all</strong> visitors</code>. But "all visitors" included a ton of casual traffic that was never going to subscribe — and that volume <strong>swung wildly week to week</strong>.</p>
+    <p>Consider Week ${apparentBest.week}'s <strong style="color:${apparent.hex}">${apparent.name}</strong> test: it posted the highest reported rate (${pct(apparentReported)}) — but only because its week happened to have less casual traffic, so the denominator was smaller. The same number of subscriptions in a quieter week looks like a bigger percentage. Nothing about the button changed; the noise did.</p>
+    <p>The <em>true</em> rate column above shows what the numbers would say if you only counted qualified readers — the people who could plausibly convert. That's the rate you actually wanted to compare. But you can't observe it: you can't tell who's qualified just by looking at a visit.</p>
+    <p><strong>Couldn't I just run more weeks until it averages out?</strong> Yes, eventually — but every extra week is more traffic spent on a possibly-wrong variant. A single A/B week (Phase 2) gets you the same comparison without burning weeks of traffic on losers.</p>
+  `;
+  wrapper.appendChild(lesson);
+
+  const btn = document.createElement('button');
+  btn.className = 'primary';
+  btn.textContent = 'Continue to Phase 2 →';
+  btn.onclick = () => { state.screen = 'phase2-run'; render(); };
+  wrapper.appendChild(btn);
+}
+
+// ===== Phase 2: A/B =====
+function renderPhase2Run() {
+  const wrapper = el('div', { class: 'panel' });
+  wrapper.innerHTML = `
+    <h2>Phase 2 — A/B testing</h2>
+    <p class="muted">Pick <strong>two</strong> colors to run head-to-head in the same week. Traffic is split 50/50 — both qualified and casual visitors. Run as many head-to-head weeks as you need.</p>
+  `;
+
+  const sel = state.phase2.currentSelection;
+  const h = document.createElement('h3');
+  h.textContent = sel.length === 0
+    ? 'Pick the first contender'
+    : sel.length === 1 ? 'Pick the second contender' : 'Ready to launch';
+  wrapper.appendChild(h);
+
+  const grid = document.createElement('div');
+  grid.className = 'color-grid';
+  for (const c of COLORS) {
+    const card = document.createElement('div');
+    const selected = sel.includes(c.id);
+    card.className = 'color-card' + (selected ? ' selected' : '');
+    card.innerHTML = `
+      <div class="swatch" style="background:${c.hex}"></div>
+      <div class="label">${c.name}</div>
+    `;
+    card.onclick = () => {
+      if (selected) {
+        state.phase2.currentSelection = sel.filter(x => x !== c.id);
+      } else if (sel.length < 2) {
+        state.phase2.currentSelection = [...sel, c.id];
+      }
+      render();
+    };
+    grid.appendChild(card);
+  }
+  wrapper.appendChild(grid);
+
+  const ctrls = document.createElement('div');
+  ctrls.className = 'row';
+  ctrls.style.marginTop = '12px';
+  const launch = document.createElement('button');
+  launch.className = 'primary';
+  launch.textContent = sel.length === 2
+    ? `Launch ${color(sel[0]).name} vs ${color(sel[1]).name} (1 week)`
+    : 'Pick two colors above';
+  launch.disabled = sel.length !== 2;
+  launch.onclick = runPhase2Week;
+  ctrls.appendChild(launch);
+
+  if (state.phase2.tests.length > 0) {
+    const decide = document.createElement('button');
+    decide.textContent = 'I\'ve seen enough — pick a winner →';
+    decide.onclick = () => { state.screen = 'phase2-decide'; render(); };
+    ctrls.appendChild(decide);
+  }
+  wrapper.appendChild(ctrls);
+
+  if (state.phase2.tests.length > 0) {
+    const h2 = document.createElement('h3');
+    h2.textContent = 'Head-to-head results';
+    wrapper.appendChild(h2);
+    for (const t of state.phase2.tests) {
+      wrapper.appendChild(buildABCard(t));
+    }
+    const note = document.createElement('p');
+    note.className = 'small';
+    note.textContent = 'Both variants share the same week, so casual traffic is split between them too. The denominators are comparable, even if individually inflated.';
+    wrapper.appendChild(note);
+  }
+}
+
+function buildABCard(t) {
+  const wrap = document.createElement('div');
+  wrap.className = 'panel';
+  wrap.style.padding = '14px';
+  const ca = color(t.a.colorId), cb = color(t.b.colorId);
+  const ra = t.a.conversions / t.a.total;
+  const rb = t.b.conversions / t.b.total;
+  const aWin = ra > rb;
+  wrap.innerHTML = `
+    <div class="small">Week ${t.week} — total visitors: ${num(t.totalVisitors)}</div>
+    <div class="ab-grid">
+      <div class="ab-cell" style="${aWin ? 'border-color:var(--good)' : ''}">
+        <div class="swatch" style="background:${ca.hex}"></div>
+        <div><strong>${ca.name}</strong> ${aWin ? '<span class="winner">▲ winner</span>' : ''}</div>
+        <div class="rate">${pct(ra)}</div>
+        <div class="small">${t.a.conversions} subs / ${num(t.a.total)} visitors</div>
+      </div>
+      <div class="ab-cell" style="${!aWin ? 'border-color:var(--good)' : ''}">
+        <div class="swatch" style="background:${cb.hex}"></div>
+        <div><strong>${cb.name}</strong> ${!aWin ? '<span class="winner">▲ winner</span>' : ''}</div>
+        <div class="rate">${pct(rb)}</div>
+        <div class="small">${t.b.conversions} subs / ${num(t.b.total)} visitors</div>
+      </div>
+    </div>
+  `;
+  return wrap;
+}
+
+function runPhase2Week() {
+  const [aId, bId] = state.phase2.currentSelection;
+  const week = state.phase2.tests.length + 1;
+  const totalConvertible = CONVERTIBLE_PER_WEEK;
+  const totalNon = ncForWeek(week);
+  const aConv = Math.floor(totalConvertible / 2);
+  const bConv = totalConvertible - aConv;
+  const aNon = Math.floor(totalNon / 2);
+  const bNon = totalNon - aNon;
+  const aSubs = deterministicSample(2, week, aId, aConv);
+  const bSubs = deterministicSample(2, week, bId, bConv);
+  state.phase2.tests.push({
+    week,
+    totalVisitors: totalConvertible + totalNon,
+    a: { colorId: aId, convertible: aConv, nonConvertible: aNon, total: aConv + aNon, conversions: aSubs },
+    b: { colorId: bId, convertible: bConv, nonConvertible: bNon, total: bConv + bNon, conversions: bSubs },
+  });
+  state.phase2.currentSelection = [];
+  render();
+}
+
+function renderPhase2Decide() {
+  const wrapper = el('div', { class: 'panel' });
+  wrapper.innerHTML = `
+    <h2>Phase 2 — Decision time</h2>
+    <p>Which color do you ship as the permanent subscribe button?</p>
+  `;
+  for (const t of state.phase2.tests) wrapper.appendChild(buildABCard(t));
+
+  const grid = document.createElement('div');
+  grid.className = 'color-grid';
+  grid.style.marginTop = '16px';
+  for (const c of COLORS) {
+    const card = document.createElement('div');
+    card.className = 'color-card';
+    card.innerHTML = `
+      <div class="swatch" style="background:${c.hex}"></div>
+      <div class="label">Ship ${c.name}</div>
+    `;
+    card.onclick = () => {
+      state.phase2.decision = c.id;
+      state.screen = 'phase2-debrief';
+      render();
+    };
+    grid.appendChild(card);
+  }
+  wrapper.appendChild(grid);
+}
+
+function renderPhase2Debrief() {
+  const truth = bestColorForPhase(2);
+  const chose = color(state.phase2.decision);
+  const correct = chose.id === truth.id;
+
+  const wrapper = el('div', { class: 'panel' });
+  wrapper.innerHTML = `
+    <h2>Phase 2 debrief</h2>
+    <p>You shipped <strong style="color:${chose.hex}">${chose.name}</strong>. The actual best color is <strong style="color:${truth.hex}">${truth.name}</strong> (${pct(truth.rate)} among qualified readers).</p>
+    <p>${correct
+      ? '<span class="verdict-good">Correct.</span> A/B testing within a single week makes the comparison apples-to-apples.'
+      : '<span class="verdict-bad">Still wrong</span> — but if you ran more A/B weeks, you\'d converge. With small sample sizes you can still get unlucky in any single week. The key difference from Phase 1 is that <em>more data fixes it</em>.'}</p>
+  `;
+
+  const lesson = document.createElement('div');
+  lesson.className = 'lesson';
+  lesson.innerHTML = `
+    <h3>Why A/B testing works</h3>
+    <p>The ratio of casual to qualified traffic was still random this week — but <strong>both variants experienced the same week at the same time</strong>. With a 50/50 split, both arms got the same proportion of qualified and casual visitors. Whatever bias the casual traffic adds to the denominator, it adds equally to both sides, so when you compare the two reported rates the bias cancels.</p>
+    <p>Phase 1's flaw wasn't the metric — it was that each week's metric was measured against a different denominator. Phase 2 fixes that by running both variants <em>against the same denominator at the same time</em>.</p>
+  `;
+  wrapper.appendChild(lesson);
+
+  const btn = document.createElement('button');
+  btn.className = 'primary';
+  btn.textContent = 'Continue to Phase 3 →';
+  btn.onclick = () => { state.screen = 'phase3-run'; render(); };
+  wrapper.appendChild(btn);
+}
+
+// ===== Phase 3: A/B/n =====
+function renderPhase3Run() {
+  const wrapper = el('div', { class: 'panel' });
+  wrapper.innerHTML = `
+    <h2>Phase 3 — A/B/n testing</h2>
+    <p class="muted">Why pick just two? Split this week's traffic across <strong>all four colors at once</strong>. Each arm gets a quarter of the qualified visitors and a quarter of the casual ones. Run as many weeks as you want to tighten the estimates.</p>
+  `;
+
+  const ctrls = document.createElement('div');
+  ctrls.className = 'row';
+  ctrls.style.marginBottom = '12px';
+  const runBtn = document.createElement('button');
+  runBtn.className = 'primary';
+  runBtn.textContent = state.phase3.tests.length === 0
+    ? 'Launch the test (1 week)'
+    : 'Run another week (more data)';
+  runBtn.onclick = runPhase3Week;
+  ctrls.appendChild(runBtn);
+
+  if (state.phase3.tests.length > 0) {
+    const decideBtn = document.createElement('button');
+    decideBtn.textContent = 'Pick the winner →';
+    decideBtn.onclick = () => { state.screen = 'phase3-decide'; render(); };
+    ctrls.appendChild(decideBtn);
+  }
+  wrapper.appendChild(ctrls);
+
+  if (state.phase3.tests.length === 0) {
+    const h = document.createElement('h3');
+    h.textContent = 'Arms in the test';
+    wrapper.appendChild(h);
+    const previewWrap = document.createElement('div');
+    previewWrap.className = 'color-grid';
+    for (const c of COLORS) {
+      const cell = document.createElement('div');
+      cell.className = 'color-card';
+      cell.style.cursor = 'default';
+      cell.innerHTML = `
+        <div class="swatch" style="background:${c.hex}"></div>
+        <div class="label">${c.name}</div>
+      `;
+      previewWrap.appendChild(cell);
+    }
+    wrapper.appendChild(previewWrap);
+  } else {
+    const cumul = cumulativePhase3();
+    const wks = state.phase3.tests.length;
+    const h = document.createElement('h3');
+    h.textContent = `Cumulative results across ${wks} week${wks > 1 ? 's' : ''}`;
+    wrapper.appendChild(h);
+    wrapper.appendChild(buildAbnGrid(cumul, false));
+    const note = document.createElement('p');
+    note.className = 'small';
+    note.textContent = 'All four arms share the same week, so the casual-traffic noise affects every arm equally. Smaller per-arm samples than a 2-arm A/B, so it pays to run a few weeks.';
+    wrapper.appendChild(note);
+  }
+}
+
+function runPhase3Week() {
+  const week = state.phase3.tests.length + 1;
+  const totalConvertible = CONVERTIBLE_PER_WEEK;
+  const totalNon = ncForWeek(week);
+  const cells = [];
+  const n = COLORS.length;
+  const perCellConv = Math.floor(totalConvertible / n);
+  const perCellNon = Math.floor(totalNon / n);
+  for (const c of COLORS) {
+    const subs = deterministicSample(3, week, c.id, perCellConv);
+    cells.push({
+      colorId: c.id,
+      convertible: perCellConv, nonConvertible: perCellNon,
+      total: perCellConv + perCellNon, conversions: subs,
+    });
+  }
+  state.phase3.tests.push({ week, cells });
+  render();
+}
+
+function cumulativePhase3() {
+  const acc = {};
+  for (const wk of state.phase3.tests) {
+    for (const cell of wk.cells) {
+      const key = cell.colorId;
+      if (!acc[key]) acc[key] = {
+        colorId: cell.colorId,
+        convertible: 0, nonConvertible: 0, total: 0, conversions: 0,
+      };
+      acc[key].convertible += cell.convertible;
+      acc[key].nonConvertible += cell.nonConvertible;
+      acc[key].total += cell.total;
+      acc[key].conversions += cell.conversions;
+    }
+  }
+  return Object.values(acc);
+}
+
+function buildAbnGrid(cells, highlightWinner) {
+  const wrap = document.createElement('div');
+  wrap.className = 'abn-grid';
+  let bestRate = -1, bestKey = null;
+  for (const c of cells) {
+    const r = c.conversions / c.total;
+    if (r > bestRate) { bestRate = r; bestKey = c.colorId; }
+  }
+  const ordered = COLORS.map(col => cells.find(cell => cell.colorId === col.id)).filter(Boolean);
+  for (const cell of ordered) {
+    const c = color(cell.colorId);
+    const r = cell.conversions / cell.total;
+    const isWinner = highlightWinner && cell.colorId === bestKey;
+    const div = document.createElement('div');
+    div.className = 'ab-cell';
+    if (isWinner) div.style.borderColor = 'var(--good)';
+    div.innerHTML = `
+      <div class="swatch" style="background:${c.hex}"></div>
+      <div><strong>${c.name}</strong>${isWinner ? ' <span class="winner">▲ best</span>' : ''}</div>
+      <div class="rate">${pct(r)}</div>
+      <div class="small">${cell.conversions} subs / ${num(cell.total)} visitors</div>
+    `;
+    wrap.appendChild(div);
+  }
+  return wrap;
+}
+
+function renderPhase3Decide() {
+  const wrapper = el('div', { class: 'panel' });
+  wrapper.innerHTML = `
+    <h2>Phase 3 — Pick a winner</h2>
+    <p>Which color do you ship?</p>
+  `;
+  wrapper.appendChild(buildAbnGrid(cumulativePhase3(), false));
+
+  const grid = document.createElement('div');
+  grid.className = 'color-grid';
+  grid.style.marginTop = '16px';
+  for (const c of COLORS) {
+    const card = document.createElement('div');
+    card.className = 'color-card';
+    card.innerHTML = `
+      <div class="swatch" style="background:${c.hex}"></div>
+      <div class="label">Ship ${c.name}</div>
+    `;
+    card.onclick = () => {
+      state.phase3.decision = c.id;
+      state.screen = 'phase3-debrief';
+      render();
+    };
+    grid.appendChild(card);
+  }
+  wrapper.appendChild(grid);
+}
+
+function renderPhase3Debrief() {
+  const truth = bestColorForPhase(3);
+  const chose = color(state.phase3.decision);
+  const correct = chose.id === truth.id;
+
+  const wrapper = el('div', { class: 'panel' });
+  wrapper.innerHTML = `
+    <h2>Phase 3 debrief</h2>
+    <p>You shipped <strong style="color:${chose.hex}">${chose.name}</strong>. The actual best color is <strong style="color:${truth.hex}">${truth.name}</strong> (${pct(truth.rate)} among qualified readers).</p>
+    <p>${correct
+      ? '<span class="verdict-good">Correct.</span> Splitting all four arms in one experiment found the winner directly — no tournaments required.'
+      : '<span class="verdict-bad">Not quite.</span> With small per-arm samples in just a few weeks, individual arms can stay noisy. Running more weeks would converge.'}</p>
+  `;
+  wrapper.appendChild(buildAbnGrid(cumulativePhase3(), true));
+
+  const lesson = document.createElement('div');
+  lesson.className = 'lesson';
+  lesson.innerHTML = `
+    <h3>Why test all arms at once?</h3>
+    <p>Phase 2 forced you into pairwise tournaments — Red vs Blue this week, the winner against Green next week, and so on. That works, but it spends weeks of traffic and leaves earlier-eliminated arms under-measured.</p>
+    <p>An A/B/n test runs every candidate side-by-side in the same week. The denominator-structure logic from Phase 2 still applies (casual-traffic noise hits every arm proportionally and cancels out in the comparison), but you get a direct ranking across <em>all</em> options at once. The cost: each arm gets a smaller slice of traffic, so individual arms are noisier than a 2-arm split — which is why you might want a few weeks of data.</p>
+    <p class="small">A/B/n is sometimes called a multi-arm or split test. It is <em>not</em> the same as multivariate testing, which combines multiple <em>factors</em> (e.g., color × label) and tries to surface their interactions.</p>
+  `;
+  wrapper.appendChild(lesson);
+
+  const btn = document.createElement('button');
+  btn.className = 'primary';
+  btn.textContent = 'See the wrap-up →';
+  btn.onclick = () => { state.screen = 'summary'; render(); };
+  wrapper.appendChild(btn);
+}
+
+// ===== Summary =====
+function renderSummary() {
+  const truth1 = bestColorForPhase(1);
+  const truth2 = bestColorForPhase(2);
+  const truth3 = bestColorForPhase(3);
+  const p1Correct = state.phase1.decision === truth1.id;
+  const p2Correct = state.phase2.decision === truth2.id;
+  const p3Correct = state.phase3.decision === truth3.id;
+
+  const score = [p1Correct, p2Correct, p3Correct].filter(Boolean).length;
+
+  const wrapper = el('div', { class: 'panel' });
+  wrapper.innerHTML = `
+    <h2>Wrap-up</h2>
+    <p>Score: <strong>${score} / 3</strong></p>
+    <table>
+      <thead><tr><th>Phase</th><th>Method</th><th>Your pick</th><th>Correct?</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Sequential</td>
+          <td>${color(state.phase1.decision).name}</td>
+          <td>${p1Correct ? '<span class="verdict-good">Yes</span>' : '<span class="verdict-bad">No</span>'}</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>A/B</td>
+          <td>${color(state.phase2.decision).name}</td>
+          <td>${p2Correct ? '<span class="verdict-good">Yes</span>' : '<span class="verdict-bad">No</span>'}</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>A/B/n</td>
+          <td>${color(state.phase3.decision).name}</td>
+          <td>${p3Correct ? '<span class="verdict-good">Yes</span>' : '<span class="verdict-bad">No</span>'}</td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+
+  const lesson = document.createElement('div');
+  lesson.className = 'lesson';
+  lesson.innerHTML = `
+    <h3>Three takeaways</h3>
+    <ol>
+      <li><strong>Sequential single-variant tests are vulnerable to changing denominators.</strong> When the audience mix changes between weeks, the conversion rate changes too — even if nothing about your change matters. You can fight this by running many weeks, but it's a slow, expensive way to learn.</li>
+      <li><strong>A/B testing eliminates between-period bias by holding time constant.</strong> Both variants share the same week, the same news cycle, the same casual-traffic spike. Random splitting cancels the shared noise so the rate comparison is honest.</li>
+      <li><strong>A/B/n testing extends that to many arms at once.</strong> Instead of running pairwise tournaments across multiple weeks, split traffic across every candidate simultaneously. Same denominator-structure logic; you just trade some statistical power per arm for breadth.</li>
+    </ol>
+    <p class="small">Hidden truth (for the curious): each phase had its own set of true rates among qualified readers.<br>
+    Phase 1 — Red ${pct(PHASE_RATES[1].red)}, Blue ${pct(PHASE_RATES[1].blue)}, Green ${pct(PHASE_RATES[1].green)}, Purple ${pct(PHASE_RATES[1].purple)} → winner ${truth1.name}.<br>
+    Phase 2 — Red ${pct(PHASE_RATES[2].red)}, Blue ${pct(PHASE_RATES[2].blue)}, Green ${pct(PHASE_RATES[2].green)}, Purple ${pct(PHASE_RATES[2].purple)} → winner ${truth2.name}.<br>
+    Phase 3 — Red ${pct(PHASE_RATES[3].red)}, Blue ${pct(PHASE_RATES[3].blue)}, Green ${pct(PHASE_RATES[3].green)}, Purple ${pct(PHASE_RATES[3].purple)} → winner ${truth3.name}.<br>
+    Casual-traffic levels are the same 52-week schedule for every phase, and the schedule loops if you run past week 52.</p>
+  `;
+  wrapper.appendChild(lesson);
+
+  const btn = document.createElement('button');
+  btn.className = 'primary';
+  btn.textContent = 'Play again';
+  btn.onclick = () => {
+    state.screen = 'intro';
+    state.phase1 = { tests: [], decision: null };
+    state.phase2 = { tests: [], decision: null, currentSelection: [] };
+    state.phase3 = { tests: [], decision: null };
+    render();
+  };
+  wrapper.appendChild(btn);
+}
+
+render();
+</script>
+</body>
+</html>
