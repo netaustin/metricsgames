@@ -376,7 +376,7 @@ function renderIntro() {
   app.innerHTML = `
     <div class="panel">
       <h2>The brief</h2>
-      <p>You're the PM at <strong>Rainbow News</strong>. The growth team wants you to find the highest-converting color (and later, label) for the article-page <strong>subscribe button</strong>.</p>
+      <p>You're the PM at <strong>Rainbow News</strong>. The growth team wants you to find the highest-converting color for the article-page <strong>subscribe button</strong>.</p>
       <p class="muted">Each test runs for one week. Each week, ~1,000 visitors are <em>plausible subscribers</em> — the kind of reader who could convert. A variable amount of additional traffic (between roughly 500 and 4,000 visitors a week) just stops by to skim a headline. Your dashboard reports a single number: <strong>total conversion rate = subscriptions ÷ all visitors</strong>.</p>
       <p>You'll run three separate campaigns. Each one is a fresh scenario with its own underlying audience preferences — the best color in Phase 1 isn't necessarily the best in Phase 2.</p>
       <ol>
@@ -916,7 +916,7 @@ function renderPhase3Debrief() {
     <h3>Why test all arms at once?</h3>
     <p>Phase 2 forced you into pairwise tournaments — Red vs Blue this week, the winner against Green next week, and so on. That works, but it spends weeks of traffic and leaves earlier-eliminated arms under-measured.</p>
     <p>An A/B/n test runs every candidate side-by-side in the same week. The denominator-structure logic from Phase 2 still applies (casual-traffic noise hits every arm proportionally and cancels out in the comparison), but you get a direct ranking across <em>all</em> options at once. The cost: each arm gets a smaller slice of traffic, so individual arms are noisier than a 2-arm split — which is why you might want a few weeks of data.</p>
-    <p class="small">A/B/n is sometimes called a multi-arm or split test. It is <em>not</em> the same as multivariate testing, which combines multiple <em>factors</em> (e.g., color × label) and tries to surface their interactions.</p>
+    <p class="small">A/B/n is sometimes called a multi-arm or split test. It is <em>not</em> the same as multivariate testing, which combines multiple <em>factors</em> at once and tries to surface their interactions.</p>
   `;
   wrapper.appendChild(lesson);
 
