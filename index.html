@@ -377,7 +377,7 @@ function renderIntro() {
     <div class="panel">
       <h2>The brief</h2>
       <p>You're the PM at <strong>Rainbow News</strong>. The growth team wants you to find the highest-converting color for the article-page <strong>subscribe button</strong>.</p>
-      <p class="muted">Each test runs for one week. Each week, ~1,000 visitors are <em>plausible subscribers</em> — the kind of reader who could convert. A variable amount of additional traffic (between roughly 500 and 4,000 visitors a week) just stops by to skim a headline. Your dashboard reports a single number: <strong>total conversion rate = subscriptions ÷ all visitors</strong>.</p>
+      <p class="muted">Each test runs for one week. Site traffic varies week to week. Your dashboard reports one number per test: <strong>conversion rate = subscriptions ÷ visitors</strong>.</p>
       <p>You'll run three separate campaigns. Each one is a fresh scenario with its own underlying audience preferences — the best color in Phase 1 isn't necessarily the best in Phase 2.</p>
       <ol>
         <li><strong>Phase 1:</strong> change one color at a time, one per week. Run as long as you like, then commit.</li>
@@ -442,7 +442,7 @@ function renderPhase1Run() {
     wrapper.appendChild(buildPhase1Table(false));
     const note = document.createElement('p');
     note.className = 'small';
-    note.textContent = 'Note how week-to-week traffic varies. The conversion rate divides by every visitor — including the ones who would never have subscribed regardless of color.';
+    note.textContent = 'Note how week-to-week traffic varies — and so does the reported rate.';
     wrapper.appendChild(note);
   }
 }
@@ -462,7 +462,7 @@ function buildPhase1Table(reveal) {
     body += `<tr${reveal ? ' class="reveal-row"' : ''}>
       <td>${r.week}</td>
       <td><span class="swatch-inline" style="background:${c.hex}"></span>${c.name}</td>
-      <td>${num(total)} <span class="small">(${num(r.convertible)} qualified + ${num(r.nonConvertible)} casual)</span></td>
+      <td>${num(total)}${reveal ? ` <span class="small">(${num(r.convertible)} qualified + ${num(r.nonConvertible)} casual)</span>` : ''}</td>
       <td>${r.conversions}</td>
       <td>${pct(reported)}</td>
       ${reveal ? `<td>${pct(trueR)}</td>` : ''}

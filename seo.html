@@ -1,0 +1,183 @@
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Georgia, serif; background: #f4f4f0; color: #333; padding: 20px; }
+  
+  .container { display: flex; gap: 32px; max-width: 1200px; margin: 0 auto; }
+  .column { flex: 1; }
+  
+  .label {
+    font-family: -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+  .label-bad { background: #e63946; color: #fff; }
+  .label-good { background: #2d6a4f; color: #fff; }
+  
+  .code-tab {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    background: #1a1a2e;
+    color: #ccc;
+    padding: 16px;
+    border-radius: 8px 8px 0 0;
+    overflow-x: auto;
+    white-space: pre;
+    line-height: 1.6;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .code-tab .tag { color: #e63946; }
+  .code-tab .attr { color: #f97316; }
+  .code-tab .val { color: #4ecdc4; }
+  .code-tab .tag-good { color: #2d6a4f; }
+  .code-tab .comment { color: #555; font-style: italic; }
+  
+  .render-tab {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 24px;
+  }
+  
+  /* Rendered article styles — applying only inside .render-tab */
+  .render-tab h1 { font-size: 24px; line-height: 1.2; margin-bottom: 8px; }
+  .render-tab .byline, .render-tab .date { font-family: -apple-system, sans-serif; font-size: 13px; color: #666; }
+  .render-tab .date { margin-bottom: 16px; }
+  .render-tab p { font-size: 15px; line-height: 1.7; margin-bottom: 12px; }
+  .render-tab .section-label { font-family: -apple-system, sans-serif; font-size: 11px; font-weight: 700; color: #e63946; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .render-tab img { width: 100%; height: 160px; object-fit: cover; border-radius: 4px; margin-bottom: 8px; background: #ddd; }
+  .render-tab .caption { font-family: -apple-system, sans-serif; font-size: 11px; color: #999; margin-bottom: 16px; }
+  
+  .note {
+    font-family: -apple-system, sans-serif;
+    font-size: 12px;
+    color: #888;
+    margin-top: 12px;
+    line-height: 1.5;
+    padding: 10px 14px;
+    background: #f9f9f6;
+    border-left: 3px solid #ccc;
+    border-radius: 0 4px 4px 0;
+  }
+  .note.bad { border-left-color: #e63946; }
+  .note.good { border-left-color: #2d6a4f; }
+
+  h2.section-title {
+    font-family: -apple-system, sans-serif;
+    font-size: 14px;
+    color: #333;
+    margin: 24px 0 8px;
+    padding-top: 12px;
+    border-top: 1px solid #ddd;
+  }
+</style>
+
+<div class="container">
+  <!-- LEFT: Div Soup -->
+  <div class="column">
+    <span class="label label-bad">❌ "Div Soup" — No Semantic HTML</span>
+
+    <div class="code-tab"><span class="comment">&lt;!-- A search engine sees this: --&gt;</span>
+<span class="tag">&lt;div</span> <span class="attr">class=</span><span class="val">"wrapper"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="val">"top-label"</span><span class="tag">&gt;</span>Local Government<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="val">"big-text"</span><span class="tag">&gt;</span>City Council Votes 5-4 to
+    Approve Downtown Zoning Change<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="val">"small-text"</span><span class="tag">&gt;</span>By Maria Santos<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="val">"small-text"</span><span class="tag">&gt;</span>May 11, 2026<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="val">"img-holder"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;img</span> <span class="attr">src=</span><span class="val">"photo.jpg"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="val">"small-text"</span><span class="tag">&gt;</span>Council
+      members during the vote.<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="val">"text-block"</span><span class="tag">&gt;</span>The Lakeshore
+    City Council voted 5-4 late Thursday to
+    approve a controversial rezoning...<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="val">"text-block"</span><span class="tag">&gt;</span>The plan would
+    allow mixed-use development on a
+    12-block stretch of Grand Avenue...<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;div</span> <span class="attr">class=</span><span class="val">"text-block"</span><span class="tag">&gt;</span>"This is a
+    generational investment in downtown,"
+    said Council President Amara Obi...<span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></div>
+
+    <div class="render-tab">
+      <div class="section-label">Local Government</div>
+      <h1>City Council Votes 5-4 to Approve Downtown Zoning Change</h1>
+      <div class="byline">By Maria Santos</div>
+      <div class="date">May 11, 2026</div>
+      <div style="width:100%;height:160px;background:linear-gradient(135deg,#ccc,#aaa);border-radius:4px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;color:#888;font-family:sans-serif;font-size:12px;">photo.jpg</div>
+      <div class="caption">Council members during the vote.</div>
+      <p>The Lakeshore City Council voted 5-4 late Thursday to approve a controversial rezoning of the downtown commercial district, overriding objections from neighborhood groups who argued the plan prioritizes developers over residents.</p>
+      <p>The plan would allow mixed-use development on a 12-block stretch of Grand Avenue, replacing current height restrictions with a tiered system that permits buildings up to 12 stories near the transit corridor.</p>
+      <p>"This is a generational investment in downtown," said Council President Amara Obi, who cast the deciding vote. "We can't freeze this city in 1985 and expect it to thrive in 2030."</p>
+    </div>
+
+    <div class="note bad">
+      <strong>What Googlebot sees:</strong> A pile of &lt;div&gt; elements with class names that mean nothing to a machine. It can guess that "big-text" might be a headline, but it has no structural certainty. The image has no alt text. There's no distinction between the byline, the date, the caption, and the body — they're all just &lt;div&gt; elements. Structured data? None.
+    </div>
+  </div>
+
+  <!-- RIGHT: Semantic HTML -->
+  <div class="column">
+    <span class="label label-good">✅ Semantic HTML + Structured Data</span>
+
+    <div class="code-tab"><span class="comment">&lt;!-- A search engine sees this: --&gt;</span>
+<span class="tag-good">&lt;article</span> <span class="attr">itemscope itemtype=</span><span class="val">"https://schema.org/NewsArticle"</span><span class="tag-good">&gt;</span>
+  <span class="tag-good">&lt;header&gt;</span>
+    <span class="tag-good">&lt;nav</span> <span class="attr">aria-label=</span><span class="val">"breadcrumb"</span><span class="tag-good">&gt;</span>
+      <span class="tag-good">&lt;a</span> <span class="attr">href=</span><span class="val">"/local-government/"</span><span class="tag-good">&gt;</span>Local
+        Government<span class="tag-good">&lt;/a&gt;</span>
+    <span class="tag-good">&lt;/nav&gt;</span>
+    <span class="tag-good">&lt;h1</span> <span class="attr">itemprop=</span><span class="val">"headline"</span><span class="tag-good">&gt;</span>City Council Votes
+      5-4 to Approve Downtown Zoning
+      Change<span class="tag-good">&lt;/h1&gt;</span>
+    <span class="tag-good">&lt;address</span> <span class="attr">itemprop=</span><span class="val">"author"</span><span class="tag-good">&gt;</span>By
+      <span class="tag-good">&lt;a</span> <span class="attr">href=</span><span class="val">"/author/maria-santos/"</span><span class="tag-good">&gt;</span>Maria
+        Santos<span class="tag-good">&lt;/a&gt;&lt;/address&gt;</span>
+    <span class="tag-good">&lt;time</span> <span class="attr">itemprop=</span><span class="val">"datePublished"</span>
+      <span class="attr">datetime=</span><span class="val">"2026-05-11"</span><span class="tag-good">&gt;</span>May 11,
+      2026<span class="tag-good">&lt;/time&gt;</span>
+  <span class="tag-good">&lt;/header&gt;</span>
+  <span class="tag-good">&lt;figure&gt;</span>
+    <span class="tag-good">&lt;img</span> <span class="attr">src=</span><span class="val">"photo.jpg"</span>
+      <span class="attr">alt=</span><span class="val">"Council members seated at the dais
+      during the downtown zoning vote"</span><span class="tag-good">&gt;</span>
+    <span class="tag-good">&lt;figcaption&gt;</span>Council members during
+      the vote.<span class="tag-good">&lt;/figcaption&gt;</span>
+  <span class="tag-good">&lt;/figure&gt;</span>
+  <span class="tag-good">&lt;section</span> <span class="attr">itemprop=</span><span class="val">"articleBody"</span><span class="tag-good">&gt;</span>
+    <span class="tag-good">&lt;p&gt;</span>The Lakeshore City Council voted
+      5-4 late Thursday to approve...<span class="tag-good">&lt;/p&gt;</span>
+    <span class="tag-good">&lt;p&gt;</span>The plan would allow mixed-use
+      development on a 12-block stretch
+      of Grand Avenue...<span class="tag-good">&lt;/p&gt;</span>
+    <span class="tag-good">&lt;p&gt;</span>"This is a generational investment
+      in downtown," said Council President
+      Amara Obi...<span class="tag-good">&lt;/p&gt;</span>
+  <span class="tag-good">&lt;/section&gt;</span>
+<span class="tag-good">&lt;/article&gt;</span></div>
+
+    <div class="render-tab">
+      <div class="section-label">Local Government</div>
+      <h1>City Council Votes 5-4 to Approve Downtown Zoning Change</h1>
+      <div class="byline">By <a href="#" style="color:#333;">Maria Santos</a></div>
+      <div class="date">May 11, 2026</div>
+      <div style="width:100%;height:160px;background:linear-gradient(135deg,#ccc,#aaa);border-radius:4px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;color:#888;font-family:sans-serif;font-size:12px;">photo.jpg</div>
+      <div class="caption">Council members during the vote.</div>
+      <p>The Lakeshore City Council voted 5-4 late Thursday to approve a controversial rezoning of the downtown commercial district, overriding objections from neighborhood groups who argued the plan prioritizes developers over residents.</p>
+      <p>The plan would allow mixed-use development on a 12-block stretch of Grand Avenue, replacing current height restrictions with a tiered system that permits buildings up to 12 stories near the transit corridor.</p>
+      <p>"This is a generational investment in downtown," said Council President Amara Obi, who cast the deciding vote. "We can't freeze this city in 1985 and expect it to thrive in 2030."</p>
+    </div>
+
+    <div class="note good">
+      <strong>What Googlebot sees:</strong> An &lt;article&gt; containing a NewsArticle. The &lt;h1&gt; is explicitly the headline. The author has a name, a link to their bio page, and is tagged with itemprop="author". The date is machine-readable (datetime="2026-05-11"). The image has descriptive alt text. The body is marked as articleBody. Every element has semantic meaning — the machine doesn't have to guess.
+    </div>
+  </div>
+</div>
